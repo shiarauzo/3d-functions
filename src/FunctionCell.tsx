@@ -11,10 +11,12 @@ import katex from "katex";
 import type { Fn } from "./functions";
 import { buildSolid, surfacePoint } from "./geometry";
 
-const BG = new THREE.Color("#0a0b14");
+const BG = new THREE.Color("#000000");
 
 function Solid({ fn, hovered }: { fn: Fn; hovered: boolean }) {
   const { geometry, transform } = useMemo(() => buildSolid(fn), [fn]);
+  const hue = useMemo(() => new THREE.Color(fn.hue), [fn.hue]);
+  const glassTint = useMemo(() => new THREE.Color(fn.hue).lerp(new THREE.Color("#ffffff"), 0.6), [fn.hue]);
   const group = useRef<THREE.Group>(null!);
   const mesh = useRef<THREE.Mesh>(null!);
   const mat = useRef<any>(null);
@@ -79,16 +81,16 @@ function Solid({ fn, hovered }: { fn: Fn; hovered: boolean }) {
           iridescence={0.4}
           iridescenceIOR={1.5}
           iridescenceThicknessRange={[100, 800]}
-          color="#cfe0ff"
+          color={glassTint}
           background={BG}
           side={THREE.DoubleSide}
         />
       </mesh>
 
-      <Trail width={1.1} length={5} decay={1.4} color="#8fd0ff" attenuation={(t) => t * t}>
+      <Trail width={1.2} length={5} decay={1.4} color={hue} attenuation={(t) => t * t}>
         <mesh ref={particle}>
-          <sphereGeometry args={[0.035, 16, 16]} />
-          <meshBasicMaterial color="#eaf6ff" toneMapped={false} />
+          <sphereGeometry args={[0.04, 16, 16]} />
+          <meshBasicMaterial color="#ffffff" toneMapped={false} />
         </mesh>
       </Trail>
     </group>
@@ -126,9 +128,9 @@ export function FunctionCell({
         <directionalLight position={[3, 4, 5]} intensity={1.1} />
         <Solid fn={fn} hovered={hovered} />
         <Environment resolution={128} frames={1}>
-          <Lightformer intensity={1.2} position={[0, 2, 3]} scale={[6, 6, 1]} color="#aaccff" />
-          <Lightformer intensity={0.8} position={[-3, -1, 2]} scale={[4, 4, 1]} color="#ffd0e0" />
-          <Lightformer intensity={0.6} position={[3, 1, -2]} scale={[4, 4, 1]} color="#d0fff0" />
+          <Lightformer intensity={1.4} position={[0, 2, 3]} scale={[6, 6, 1]} color={fn.hue} />
+          <Lightformer intensity={0.7} position={[-3, -1, 2]} scale={[4, 4, 1]} color="#ffffff" />
+          <Lightformer intensity={0.6} position={[3, 1, -2]} scale={[4, 4, 1]} color={fn.hue} />
         </Environment>
       </Canvas>
       <div className="caption" dangerouslySetInnerHTML={{ __html: html }} />

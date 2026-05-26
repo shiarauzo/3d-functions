@@ -17,7 +17,7 @@ body,
 
 body {
   background:
-    radial-gradient(120% 120% at 50% -10%, #161a2e 0%, #0a0b14 55%, #06060c 100%);
+    radial-gradient(130% 110% at 50% 0%, #0c0c0e 0%, #050505 45%, #000000 100%);
   color: var(--ink);
   font-family: "Inter", ui-sans-serif, system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -57,9 +57,9 @@ body {
 .cell {
   position: relative;
   aspect-ratio: 1 / 1;
-  border-radius: 16px;
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 14px;
+  background: #000000;
+  border: 1px solid rgba(255, 255, 255, 0.08);
   overflow: hidden;
   transition: opacity 0.35s ease, transform 0.35s ease, border-color 0.35s ease;
 }
