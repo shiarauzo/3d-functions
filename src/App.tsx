@@ -12,10 +12,10 @@ export default function App() {
         <div className="masthead__row">
           <div className="masthead__title">
             <h1>FUNCTION DENSITY ATLAS</h1>
-            <p>NINE SOLIDS OF REVOLUTION · LUMINOUS GLASS FIELD</p>
+            <p>TWELVE SOLIDS OF REVOLUTION · LUMINOUS GLASS FIELD</p>
           </div>
           <div className="masthead__meta">
-            <span>09 FIELDS</span>
+            <span>{String(FUNCTIONS.length).padStart(2, "0")} FIELDS</span>
             <span>REVOLUTION → EXTRUSION ON HOVER</span>
           </div>
         </div>

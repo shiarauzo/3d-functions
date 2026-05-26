@@ -1,10 +1,5 @@
 import { Canvas, useFrame } from "@react-three/fiber";
-import {
-  Environment,
-  Lightformer,
-  MeshTransmissionMaterial,
-  Trail,
-} from "@react-three/drei";
+import { Environment, Lightformer, Trail } from "@react-three/drei";
 import {
   Bloom,
   BrightnessContrast,
@@ -23,8 +18,6 @@ import * as THREE from "three";
 import katex from "katex";
 import type { Fn } from "./functions";
 import { buildSolid, surfacePoint } from "./geometry";
-
-const BG = new THREE.Color("#000000");
 
 /** A soft radial sprite so each surface point reads as a glowing dot. */
 function makeDotTexture() {
@@ -99,9 +92,9 @@ function Solid({
         0.35 + 0.65 * morph.current,
         dt * 4,
       );
-      mat.current.chromaticAberration = THREE.MathUtils.lerp(
-        mat.current.chromaticAberration,
-        0.06 + 0.22 * morph.current,
+      mat.current.opacity = THREE.MathUtils.lerp(
+        mat.current.opacity,
+        0.6 + 0.25 * morph.current,
         dt * 4,
       );
     }
@@ -119,23 +112,22 @@ function Solid({
   return (
     <group ref={group} rotation={[0.32, 0, 0]}>
       <mesh ref={mesh} geometry={geometry}>
-        <MeshTransmissionMaterial
+        {/* Iridescent physical glass — no transmission buffer, so 16 cells stay
+            light. The glowing point-field dominates the look anyway. */}
+        <meshPhysicalMaterial
           ref={mat}
-          samples={4}
-          resolution={128}
-          transmission={1}
-          thickness={0.6}
-          roughness={0.06}
-          ior={1.45}
-          chromaticAberration={0.08}
-          anisotropy={0.3}
-          distortion={0.2}
-          distortionScale={0.4}
+          transmission={0}
+          roughness={0.14}
+          metalness={0}
+          clearcoat={1}
+          clearcoatRoughness={0.18}
           iridescence={0.4}
           iridescenceIOR={1.5}
           iridescenceThicknessRange={[100, 800]}
           color={glassTint}
-          background={BG}
+          transparent
+          opacity={0.6}
+          envMapIntensity={1.5}
           side={THREE.DoubleSide}
         />
       </mesh>
@@ -246,7 +238,7 @@ export function FunctionCell({
         <ambientLight intensity={0.4} />
         <directionalLight position={[3, 4, 5]} intensity={1.1} />
         <Solid fn={fn} hovered={hovered} bloomRef={bloomRef} />
-        <Environment resolution={128} frames={1}>
+        <Environment resolution={64} frames={1}>
           <Lightformer intensity={1.4} position={[0, 2, 3]} scale={[6, 6, 1]} color={fn.hue} />
           <Lightformer intensity={0.7} position={[-3, -1, 2]} scale={[4, 4, 1]} color="#ffffff" />
           <Lightformer intensity={0.6} position={[3, 1, -2]} scale={[4, 4, 1]} color={fn.hue} />

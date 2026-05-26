@@ -45,6 +45,75 @@ Per-function category hues (from the palette):
 ## Definition of done per iteration
 
 - `npm run build` clean.
-- `/qa`: 9 live WebGL contexts, **0 console errors**, not blank, screenshot saved.
+- `/qa`: live WebGL contexts, **0 console errors**, not blank, screenshot saved.
 - Visible improvement toward the reference, reviewed on the screenshot.
 - Branch + draft PR (stacked on previous), no Claude co-author/attribution.
+
+---
+
+# Plan V2 — iterations 11–25 (+ README pass)
+
+Second wave. Each iteration: develop → **separate code-review agent verifies & I
+fix** → `/qa` → branch + draft PR (stacked), no Claude attribution.
+
+## Function expansion (decision)
+
+Grid grows **9 → 16 (4×4)**. Seven curves added, chosen to broaden the shape
+vocabulary (asymptotes, inflections, decay, growth):
+
+| fn | latex | hue | domain | note |
+|---|---|---|---|---|
+| tan | `\tan x` | `#FF4D6D` | [-1.2, 1.2] | asymptotic flare (safely inside ±π/2) |
+| ln | `\ln x` | `#36C5F0` | [1.0, 6] | clean growth branch (no fold-through) |
+| cube | `x^3` | `#C0FF3E` | [-1.3, 1.3] | odd, inflection at 0 |
+| cbrt | `\sqrt[3]{x}` | `#FF9F1C` | [-2, 2] | steep near 0 (fold is aesthetic) |
+| logistic | `\dfrac{1}{1+e^{-x}}` | `#9B5DE5` | [-6, 6] | sigmoid S, always (0,1) |
+| damped | `e^{-x/4}\cos 3x` | `#00F5D4` | [0, 4π] | decaying oscillation (non-neg input to exp) |
+| rose | `|\sin 2x|` | `#F15BB5` | [0, π] | one petal cycle, always ≥0 |
+
+Domains validated by plan QA (avoid unbounded radius / NaN).
+
+## Iterations
+
+11. **Grid 4×4 + 7 funciones + lazy-mount.** Add the curves above; relayout to 4
+    columns; extend the palette/color-key; update masthead copy (16 fields).
+    **Correctness prerequisite (per plan QA):** lazy-mount each cell's `<Canvas>`
+    via IntersectionObserver (mount on approach, unmount when far offscreen) so we
+    never exceed the browser's ~16 WebGL-context limit and silently blank cells.
+    Also drop transmission `samples` 4→2 for non-hovered cells.
+12. **Heat blooms.** Diffuse low-frequency glow behind dense regions (a soft
+    additive backing) so clusters read as heat, like the reference halos.
+13. **Quantity dots.** Crisp signal-yellow proportional dots overlaid on the
+    field (second encoding), sized by local curvature/height.
+14. **Sweep pulse.** A travelling luminance sweep along the solid that briefly
+    brightens the points it passes — sampling/scan motion.
+15. **Map chrome.** Per-cell north-arrow + scale-bar + tick marks, the reference's
+    instrument annotations.
+16. **Thermal vertex color.** Points coloured by radius/height through a
+    black→hue→white ramp so each solid has a hot core and cool rim.
+17. **Camera drift / parallax.** Subtle per-cell camera sway for life and depth.
+18. **Particle swarm.** 3–4 particles per cell spiralling at offsets, each with a
+    trail — a constellation, not a lone dot.
+19. **Depth cueing.** Atmospheric fog/fade so far surface dims, reinforcing 3D.
+20. **Sticky focus + keyboard.** Click/key to pin a field (sticky select), arrow
+    navigation, focus-visible styles.
+21. **Intro choreography.** Staggered fade/scale-in of cells on load; smooth state
+    transitions.
+22. **Analog grain.** Fine film grain + faint scanlines overlay for instrument feel
+    (respecting contrast).
+23. **Responsive.** Fluid type, 4→2→1 columns, sensible touch behaviour.
+24. **A11y + reduced motion.** `prefers-reduced-motion` calms rotation/particles;
+    aria labels; key-only operability.
+25. **Perf hardening.** Shared env/PMREM, bloom resolution + dpr tuning,
+    draw-call audit, geometry/segment tuning. (Lazy-mount already landed in 11.)
+
+## Extra — README pass (separate iteration)
+
+Rewrite `README.md` into a polished landing doc: **no references to `PLAN.md` or
+`VISUAL_REFERENCE.md`**, include visuals (committed cover/hero image, a per-field
+palette table with color swatches, feature highlights, run/QA instructions).
+
+## Definition of done (V2)
+
+Same as above, plus: a **separate code-review agent** inspects each iteration's
+diff and its findings are resolved before the PR.
