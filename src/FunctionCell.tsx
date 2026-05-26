@@ -155,12 +155,14 @@ function Solid({
   useFrame((state, dtRaw) => {
     const dt = Math.min(dtRaw, 0.05);
 
-    // gentle parallax sway, unique phase per cell, for depth and life
-    if (!REDUCED) {
+    // camera: still, side-on view at rest; gentle parallax only while hovered
+    if (!REDUCED && hovered) {
       const t = state.clock.elapsedTime + drift.current;
-      camera.position.set(Math.sin(t * 0.3) * 0.28, Math.cos(t * 0.24) * 0.2, 4.2);
-      camera.lookAt(0, 0, 0);
+      camera.position.set(Math.sin(t * 0.4) * 0.18, Math.cos(t * 0.32) * 0.14, 4.2);
+    } else {
+      camera.position.set(0, 0, 4.2);
     }
+    camera.lookAt(0, 0, 0);
 
     const target = hovered ? 1 : 0;
     morph.current += (target - morph.current) * Math.min(1, dt * 3.5);
@@ -171,7 +173,17 @@ function Solid({
     if (dots.current.morphTargetInfluences) {
       dots.current.morphTargetInfluences[0] = morph.current;
     }
-    if (!REDUCED) group.current.rotation.y += dt * (0.16 + morph.current * 0.4);
+    // spin only on hover; at rest ease back to the side-on orientation
+    if (!REDUCED) {
+      if (hovered) {
+        group.current.rotation.y += dt * 0.6;
+      } else {
+        let y = group.current.rotation.y % (Math.PI * 2);
+        if (y > Math.PI) y -= Math.PI * 2;
+        if (y < -Math.PI) y += Math.PI * 2;
+        group.current.rotation.y = THREE.MathUtils.lerp(y, 0, Math.min(1, dt * 3));
+      }
+    }
 
     // intensify the glass on hover
     if (mat.current) {
