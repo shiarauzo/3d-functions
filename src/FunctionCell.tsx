@@ -6,7 +6,13 @@ import {
   Trail,
 } from "@react-three/drei";
 import { Bloom, EffectComposer, Vignette } from "@react-three/postprocessing";
-import { type CSSProperties, useLayoutEffect, useMemo, useRef } from "react";
+import {
+  type CSSProperties,
+  type MutableRefObject,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+} from "react";
 import * as THREE from "three";
 import katex from "katex";
 import type { Fn } from "./functions";
@@ -32,7 +38,15 @@ function makeDotTexture() {
 }
 const DOT_TEXTURE = /* @__PURE__ */ makeDotTexture();
 
-function Solid({ fn, hovered }: { fn: Fn; hovered: boolean }) {
+function Solid({
+  fn,
+  hovered,
+  bloomRef,
+}: {
+  fn: Fn;
+  hovered: boolean;
+  bloomRef: MutableRefObject<any>;
+}) {
   const { geometry, transform } = useMemo(() => buildSolid(fn), [fn]);
   const hue = useMemo(() => new THREE.Color(fn.hue), [fn.hue]);
   const glassTint = useMemo(() => new THREE.Color(fn.hue).lerp(new THREE.Color("#ffffff"), 0.6), [fn.hue]);
@@ -82,6 +96,15 @@ function Solid({ fn, hovered }: { fn: Fn; hovered: boolean }) {
       mat.current.chromaticAberration = THREE.MathUtils.lerp(
         mat.current.chromaticAberration,
         0.06 + 0.22 * morph.current,
+        dt * 4,
+      );
+    }
+
+    // hovered cell blooms brighter
+    if (bloomRef.current) {
+      bloomRef.current.intensity = THREE.MathUtils.lerp(
+        bloomRef.current.intensity,
+        hovered ? 2.1 : 1.15,
         dt * 4,
       );
     }
@@ -177,6 +200,7 @@ export function FunctionCell({
     [fn.latex],
   );
   const idx = String(index + 1).padStart(2, "0");
+  const bloomRef = useRef<any>(null);
 
   // mock "density" readout derived from the function's peak magnitude
   const peak = useMemo(() => {
@@ -210,7 +234,7 @@ export function FunctionCell({
       >
         <ambientLight intensity={0.4} />
         <directionalLight position={[3, 4, 5]} intensity={1.1} />
-        <Solid fn={fn} hovered={hovered} />
+        <Solid fn={fn} hovered={hovered} bloomRef={bloomRef} />
         <Environment resolution={128} frames={1}>
           <Lightformer intensity={1.4} position={[0, 2, 3]} scale={[6, 6, 1]} color={fn.hue} />
           <Lightformer intensity={0.7} position={[-3, -1, 2]} scale={[4, 4, 1]} color="#ffffff" />
@@ -218,6 +242,7 @@ export function FunctionCell({
         </Environment>
         <EffectComposer multisampling={0}>
           <Bloom
+            ref={bloomRef}
             intensity={1.15}
             luminanceThreshold={0.18}
             luminanceSmoothing={0.35}
