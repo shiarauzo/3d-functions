@@ -37,6 +37,11 @@ function makeDotTexture() {
 }
 const DOT_TEXTURE = /* @__PURE__ */ makeDotTexture();
 
+/** Respect the user's reduced-motion preference (freeze rotation/drift/particles). */
+const REDUCED =
+  typeof window !== "undefined" &&
+  window.matchMedia?.("(prefers-reduced-motion: reduce)").matches === true;
+
 function Solid({
   fn,
   hovered,
@@ -115,9 +120,11 @@ function Solid({
     const dt = Math.min(dtRaw, 0.05);
 
     // gentle parallax sway, unique phase per cell, for depth and life
-    const t = state.clock.elapsedTime + drift.current;
-    camera.position.set(Math.sin(t * 0.3) * 0.28, Math.cos(t * 0.24) * 0.2, 4.2);
-    camera.lookAt(0, 0, 0);
+    if (!REDUCED) {
+      const t = state.clock.elapsedTime + drift.current;
+      camera.position.set(Math.sin(t * 0.3) * 0.28, Math.cos(t * 0.24) * 0.2, 4.2);
+      camera.lookAt(0, 0, 0);
+    }
 
     const target = hovered ? 1 : 0;
     morph.current += (target - morph.current) * Math.min(1, dt * 3.5);
@@ -128,7 +135,7 @@ function Solid({
     if (dots.current.morphTargetInfluences) {
       dots.current.morphTargetInfluences[0] = morph.current;
     }
-    group.current.rotation.y += dt * (0.16 + morph.current * 0.4);
+    if (!REDUCED) group.current.rotation.y += dt * (0.16 + morph.current * 0.4);
 
     // sweep phase (the swarm particles advance themselves)
     phase.current = (phase.current + dt * 0.16) % 1;
@@ -276,7 +283,7 @@ function SpiralParticle({
   const tmp = useMemo(() => new THREE.Vector3(), []);
   useFrame((_, dtRaw) => {
     const dt = Math.min(dtRaw, 0.05);
-    phase.current = (phase.current + dt * 0.16) % 1;
+    if (!REDUCED) phase.current = (phase.current + dt * 0.16) % 1;
     const u = phase.current;
     const v = (u * fn.turns) % 1;
     surfacePoint(fn, transform, u, v, morph.current, tmp);

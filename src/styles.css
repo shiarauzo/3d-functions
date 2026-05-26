@@ -416,3 +416,13 @@ body {
     cursor: pointer;
   }
 }
+
+@media (prefers-reduced-motion: reduce) {
+  .cell {
+    animation: none;
+  }
+  .cell.is-hovered,
+  .cell.is-pinned {
+    transform: none;
+  }
+}

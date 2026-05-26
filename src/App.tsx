@@ -58,7 +58,7 @@ export default function App() {
         </div>
       </header>
 
-      <div className="grid">
+      <div className="grid" role="group" aria-label="Atlas de campos de funciones — pasa el cursor o haz clic para fijar">
         {FUNCTIONS.map((fn, i) => (
           <FunctionCell
             key={fn.id}
