@@ -81,6 +81,29 @@ function Solid({
     return g;
   }, [fn, transform]);
 
+  // thermal ramp: colour each surface point by distance from the revolution
+  // axis — white-hot near the core, fading to the category hue at the rim.
+  useMemo(() => {
+    const pos = geometry.getAttribute("position") as THREE.BufferAttribute;
+    const n = pos.count;
+    const colors = new Float32Array(n * 3);
+    let maxR = 0;
+    for (let i = 0; i < n; i++) {
+      const r = Math.hypot(pos.getY(i), pos.getZ(i));
+      if (r > maxR) maxR = r;
+    }
+    const c = new THREE.Color();
+    const white = new THREE.Color("#ffffff");
+    for (let i = 0; i < n; i++) {
+      const t = maxR ? Math.hypot(pos.getY(i), pos.getZ(i)) / maxR : 0;
+      c.copy(white).lerp(hue, Math.pow(t, 0.7));
+      colors[i * 3] = c.r;
+      colors[i * 3 + 1] = c.g;
+      colors[i * 3 + 2] = c.b;
+    }
+    geometry.setAttribute("color", new THREE.BufferAttribute(colors, 3));
+  }, [geometry, hue]);
+
   // R3F builds the Mesh with a placeholder geometry, so morph influences aren't
   // wired up when our morph-bearing geometry is attached. Re-sync them here.
   useLayoutEffect(() => {
@@ -190,7 +213,8 @@ function Solid({
       <points ref={dots} geometry={geometry}>
         <pointsMaterial
           map={DOT_TEXTURE}
-          color={hue}
+          vertexColors
+          color="#ffffff"
           size={0.055}
           sizeAttenuation
           transparent
