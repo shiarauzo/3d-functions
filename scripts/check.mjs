@@ -49,6 +49,15 @@ const blank = await page.evaluate(() => {
 });
 
 await page.screenshot({ path: "scripts/shot.png" });
+
+// hover a cell to capture the focus state
+const cells = await page.$$(".cell");
+if (cells[2]) {
+  await cells[2].hover();
+  await new Promise((r) => setTimeout(r, 1200));
+  await page.screenshot({ path: "scripts/shot-hover.png" });
+}
+
 await browser.close();
 
 console.log(JSON.stringify({ ...report, blank, errors: [...errors] }, null, 2));

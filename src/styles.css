@@ -90,12 +90,16 @@ body {
 }
 
 .cell.is-hovered {
-  border-color: rgba(143, 208, 255, 0.45);
-  transform: translateY(-2px);
+  border-color: color-mix(in srgb, var(--hue, #8fd0ff) 55%, transparent);
+  transform: translateY(-4px) scale(1.012);
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--hue, #8fd0ff) 35%, transparent),
+    0 12px 40px color-mix(in srgb, var(--hue, #8fd0ff) 30%, transparent);
 }
 
 .cell.is-dimmed {
-  opacity: 0.32;
+  opacity: 0.2;
+  filter: saturate(0.45) brightness(0.8);
 }
 
 /* instrument-style title block, top-left like the reference maps */
