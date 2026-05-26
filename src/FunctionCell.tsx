@@ -111,6 +111,19 @@ function Solid({
 
   return (
     <group ref={group} rotation={[0.32, 0, 0]}>
+      {/* diffuse heat bloom behind the solid — dense regions read as a halo */}
+      <sprite position={[0, 0, -0.6]} scale={[3.2, 3.2, 3.2]}>
+        <spriteMaterial
+          map={DOT_TEXTURE}
+          color={hue}
+          transparent
+          opacity={0.28}
+          depthWrite={false}
+          depthTest={false}
+          blending={THREE.AdditiveBlending}
+          toneMapped={false}
+        />
+      </sprite>
       <mesh ref={mesh} geometry={geometry}>
         {/* Iridescent physical glass — no transmission buffer, so 16 cells stay
             light. The glowing point-field dominates the look anyway. */}
