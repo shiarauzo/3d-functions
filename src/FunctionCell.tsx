@@ -17,7 +17,7 @@ import {
 import * as THREE from "three";
 import katex from "katex";
 import type { Fn } from "./functions";
-import { buildSolid, surfacePoint } from "./geometry";
+import { buildSolid, type FitTransform, surfacePoint } from "./geometry";
 
 /** A soft radial sprite so each surface point reads as a glowing dot. */
 function makeDotTexture() {
@@ -53,13 +53,11 @@ function Solid({
   const mesh = useRef<THREE.Mesh>(null!);
   const dots = useRef<THREE.Points>(null!);
   const mat = useRef<any>(null);
-  const particle = useRef<THREE.Mesh>(null!);
   const sweep = useRef<THREE.Mesh>(null!);
   const sweepMat = useRef<THREE.MeshBasicMaterial>(null!);
   const morph = useRef(0);
   const phase = useRef(Math.random());
   const drift = useRef(Math.random() * 100);
-  const tmp = useMemo(() => new THREE.Vector3(), []);
   const camera = useThree((s) => s.camera);
 
   // sparse "quantity" dots (the reference's yellow proportional symbols):
@@ -132,12 +130,9 @@ function Solid({
     }
     group.current.rotation.y += dt * (0.16 + morph.current * 0.4);
 
-    // spiral particle riding the morphing surface
+    // sweep phase (the swarm particles advance themselves)
     phase.current = (phase.current + dt * 0.16) % 1;
     const u = phase.current;
-    const v = (u * fn.turns) % 1;
-    surfacePoint(fn, transform, u, v, morph.current, tmp);
-    particle.current.position.copy(tmp);
 
     // luminance sweep scanning along the revolution axis (x), brightest at center
     const sx = -1.15 + 2.3 * u;
@@ -248,37 +243,62 @@ function Solid({
         />
       </points>
 
-      <Trail width={2.2} length={6} decay={1.5} color={hue} attenuation={(t) => t * t}>
-        <mesh ref={particle}>
-          {/* white-hot core that drives the bloom */}
-          <sphereGeometry args={[0.03, 16, 16]} />
-          <meshBasicMaterial color="#ffffff" toneMapped={false} />
-          {/* tight hue halo */}
-          <sprite scale={[0.28, 0.28, 0.28]}>
-            <spriteMaterial
-              map={DOT_TEXTURE}
-              color={hue}
-              transparent
-              depthWrite={false}
-              blending={THREE.AdditiveBlending}
-              toneMapped={false}
-            />
-          </sprite>
-          {/* wide soft glow */}
-          <sprite scale={[0.7, 0.7, 0.7]}>
-            <spriteMaterial
-              map={DOT_TEXTURE}
-              color={hue}
-              transparent
-              opacity={0.45}
-              depthWrite={false}
-              blending={THREE.AdditiveBlending}
-              toneMapped={false}
-            />
-          </sprite>
-        </mesh>
-      </Trail>
+      {[0, 0.34, 0.67].map((offset, i) => (
+        <SpiralParticle
+          key={i}
+          fn={fn}
+          transform={transform}
+          morph={morph}
+          hue={hue}
+          offset={offset}
+        />
+      ))}
     </group>
+  );
+}
+
+/** One glowing particle spiralling along the morphing surface, with a trail. */
+function SpiralParticle({
+  fn,
+  transform,
+  morph,
+  hue,
+  offset,
+}: {
+  fn: Fn;
+  transform: FitTransform;
+  morph: MutableRefObject<number>;
+  hue: THREE.Color;
+  offset: number;
+}) {
+  const particle = useRef<THREE.Mesh>(null!);
+  const phase = useRef(offset);
+  const tmp = useMemo(() => new THREE.Vector3(), []);
+  useFrame((_, dtRaw) => {
+    const dt = Math.min(dtRaw, 0.05);
+    phase.current = (phase.current + dt * 0.16) % 1;
+    const u = phase.current;
+    const v = (u * fn.turns) % 1;
+    surfacePoint(fn, transform, u, v, morph.current, tmp);
+    particle.current.position.copy(tmp);
+  });
+  return (
+    <Trail width={1.8} length={5} decay={1.6} color={hue} attenuation={(t) => t * t}>
+      <mesh ref={particle}>
+        <sphereGeometry args={[0.026, 12, 12]} />
+        <meshBasicMaterial color="#ffffff" toneMapped={false} />
+        <sprite scale={[0.24, 0.24, 0.24]}>
+          <spriteMaterial
+            map={DOT_TEXTURE}
+            color={hue}
+            transparent
+            depthWrite={false}
+            blending={THREE.AdditiveBlending}
+            toneMapped={false}
+          />
+        </sprite>
+      </mesh>
+    </Trail>
   );
 }
 
