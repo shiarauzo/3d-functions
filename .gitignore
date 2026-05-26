@@ -4,3 +4,4 @@ dist
 scripts/shot.png
 scripts/shot-hover.png
 .DS_Store
+.vercel
