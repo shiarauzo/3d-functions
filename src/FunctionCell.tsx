@@ -370,6 +370,8 @@ export function FunctionCell({
         }}
         camera={{ position: [0, 0, 4.2], fov: 30 }}
       >
+        {/* depth cue: far side of each solid fades into the dark */}
+        <fog attach="fog" args={["#04050a", 3.6, 6.4]} />
         <ambientLight intensity={0.4} />
         <directionalLight position={[3, 4, 5]} intensity={1.1} />
         <Solid fn={fn} hovered={hovered} bloomRef={bloomRef} />
