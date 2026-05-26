@@ -170,6 +170,19 @@ body {
   filter: saturate(0.45) brightness(0.8);
 }
 
+/* pinned cell keeps the focus ring even without hover */
+.cell.is-pinned {
+  border-color: color-mix(in srgb, var(--hue, #8fd0ff) 70%, transparent);
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--hue, #8fd0ff) 45%, transparent),
+    0 12px 44px color-mix(in srgb, var(--hue, #8fd0ff) 34%, transparent);
+}
+
+.cell:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--hue, #8fd0ff) 80%, transparent);
+  outline-offset: 2px;
+}
+
 /* instrument-style title block, top-left like the reference maps */
 .cell-title {
   position: absolute;
