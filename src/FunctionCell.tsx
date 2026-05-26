@@ -54,6 +54,8 @@ function Solid({
   const dots = useRef<THREE.Points>(null!);
   const mat = useRef<any>(null);
   const particle = useRef<THREE.Mesh>(null!);
+  const sweep = useRef<THREE.Mesh>(null!);
+  const sweepMat = useRef<THREE.MeshBasicMaterial>(null!);
   const morph = useRef(0);
   const phase = useRef(Math.random());
   const tmp = useMemo(() => new THREE.Vector3(), []);
@@ -105,6 +107,11 @@ function Solid({
     const v = (u * fn.turns) % 1;
     surfacePoint(fn, transform, u, v, morph.current, tmp);
     particle.current.position.copy(tmp);
+
+    // luminance sweep scanning along the revolution axis (x), brightest at center
+    const sx = -1.15 + 2.3 * u;
+    sweep.current.position.x = sx;
+    sweepMat.current.opacity = (1 - Math.abs(sx) / 1.15) * 0.6;
 
     // intensify the glass on hover
     if (mat.current) {
@@ -163,6 +170,20 @@ function Solid({
           opacity={0.6}
           envMapIntensity={1.5}
           side={THREE.DoubleSide}
+        />
+      </mesh>
+
+      {/* travelling luminance sweep ring (axis = x) */}
+      <mesh ref={sweep} rotation={[0, Math.PI / 2, 0]}>
+        <torusGeometry args={[1.05, 0.012, 8, 48]} />
+        <meshBasicMaterial
+          ref={sweepMat}
+          color="#ffffff"
+          transparent
+          opacity={0}
+          depthWrite={false}
+          blending={THREE.AdditiveBlending}
+          toneMapped={false}
         />
       </mesh>
 
