@@ -89,6 +89,9 @@ export default function App() {
           </button>
         ))}
       </footer>
+
+      {/* analog overlay: faint film grain + scanlines */}
+      <div className="grain" aria-hidden />
     </main>
   );
 }
