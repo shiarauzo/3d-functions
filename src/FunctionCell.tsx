@@ -1,4 +1,4 @@
-import { Canvas, useFrame } from "@react-three/fiber";
+import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Environment, Lightformer, Trail } from "@react-three/drei";
 import {
   Bloom,
@@ -58,7 +58,9 @@ function Solid({
   const sweepMat = useRef<THREE.MeshBasicMaterial>(null!);
   const morph = useRef(0);
   const phase = useRef(Math.random());
+  const drift = useRef(Math.random() * 100);
   const tmp = useMemo(() => new THREE.Vector3(), []);
+  const camera = useThree((s) => s.camera);
 
   // sparse "quantity" dots (the reference's yellow proportional symbols):
   // a coarse sampling of the revolution surface, baked once.
@@ -111,8 +113,14 @@ function Solid({
     dots.current.updateMorphTargets();
   }, [geometry]);
 
-  useFrame((_, dtRaw) => {
+  useFrame((state, dtRaw) => {
     const dt = Math.min(dtRaw, 0.05);
+
+    // gentle parallax sway, unique phase per cell, for depth and life
+    const t = state.clock.elapsedTime + drift.current;
+    camera.position.set(Math.sin(t * 0.3) * 0.28, Math.cos(t * 0.24) * 0.2, 4.2);
+    camera.lookAt(0, 0, 0);
+
     const target = hovered ? 1 : 0;
     morph.current += (target - morph.current) * Math.min(1, dt * 3.5);
 
