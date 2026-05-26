@@ -122,10 +122,20 @@ body {
   gap: 12px;
 }
 
+@keyframes cellIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.96);
+  }
+}
+
 .cell {
   position: relative;
   aspect-ratio: 1 / 1;
   border-radius: 14px;
+  /* staggered fade/scale-in on load (backwards: normal styles after, so hover
+     transforms keep working) */
+  animation: cellIn 0.6s cubic-bezier(0.2, 0.7, 0.2, 1) backwards;
   /* faint street-grid scaffold; the transparent canvas glows on top */
   background-color: #000000;
   background-image:

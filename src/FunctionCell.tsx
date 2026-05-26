@@ -340,7 +340,12 @@ export function FunctionCell({
   return (
     <div
       className={`cell${hovered ? " is-hovered" : ""}${pinned ? " is-pinned" : ""}${dimmed ? " is-dimmed" : ""}`}
-      style={{ "--hue": fn.hue } as CSSProperties}
+      style={
+        {
+          "--hue": fn.hue,
+          animationDelay: `${index * 0.05}s`,
+        } as CSSProperties
+      }
       tabIndex={0}
       role="button"
       aria-pressed={pinned}
