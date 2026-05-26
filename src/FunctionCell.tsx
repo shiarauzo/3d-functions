@@ -178,6 +178,17 @@ export function FunctionCell({
   );
   const idx = String(index + 1).padStart(2, "0");
 
+  // mock "density" readout derived from the function's peak magnitude
+  const peak = useMemo(() => {
+    const [a, b] = fn.domain;
+    let m = 0;
+    for (let i = 0; i <= 80; i++) {
+      const v = Math.abs(fn.f(a + ((b - a) * i) / 80));
+      if (Number.isFinite(v) && v > m) m = v;
+    }
+    return Math.max(1, Math.round(m * 137));
+  }, [fn]);
+
   return (
     <div
       className={`cell${hovered ? " is-hovered" : ""}${dimmed ? " is-dimmed" : ""}`}
@@ -216,6 +227,20 @@ export function FunctionCell({
           <Vignette eskil={false} offset={0.25} darkness={0.85} />
         </EffectComposer>
       </Canvas>
+      <div className="cell-legend">
+        <span className="cell-legend__label">EVENT DENSITY / unit²</span>
+        <span className="cell-legend__bar" />
+        <span className="cell-legend__scale">
+          <span>0</span>
+          <span>{peak.toLocaleString("en-US")}</span>
+        </span>
+        <span className="cell-legend__dots" aria-hidden>
+          <i style={{ width: 3, height: 3 }} />
+          <i style={{ width: 5, height: 5 }} />
+          <i style={{ width: 8, height: 8 }} />
+        </span>
+      </div>
+
       <div className="caption" dangerouslySetInnerHTML={{ __html: html }} />
     </div>
   );
