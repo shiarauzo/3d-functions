@@ -14,12 +14,31 @@ import { buildSolid, surfacePoint } from "./geometry";
 
 const BG = new THREE.Color("#000000");
 
+/** A soft radial sprite so each surface point reads as a glowing dot. */
+function makeDotTexture() {
+  const s = 64;
+  const c = document.createElement("canvas");
+  c.width = c.height = s;
+  const ctx = c.getContext("2d")!;
+  const g = ctx.createRadialGradient(s / 2, s / 2, 0, s / 2, s / 2, s / 2);
+  g.addColorStop(0, "rgba(255,255,255,1)");
+  g.addColorStop(0.25, "rgba(255,255,255,0.65)");
+  g.addColorStop(1, "rgba(255,255,255,0)");
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, s, s);
+  const tex = new THREE.CanvasTexture(c);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  return tex;
+}
+const DOT_TEXTURE = /* @__PURE__ */ makeDotTexture();
+
 function Solid({ fn, hovered }: { fn: Fn; hovered: boolean }) {
   const { geometry, transform } = useMemo(() => buildSolid(fn), [fn]);
   const hue = useMemo(() => new THREE.Color(fn.hue), [fn.hue]);
   const glassTint = useMemo(() => new THREE.Color(fn.hue).lerp(new THREE.Color("#ffffff"), 0.6), [fn.hue]);
   const group = useRef<THREE.Group>(null!);
   const mesh = useRef<THREE.Mesh>(null!);
+  const dots = useRef<THREE.Points>(null!);
   const mat = useRef<any>(null);
   const particle = useRef<THREE.Mesh>(null!);
   const morph = useRef(0);
@@ -30,6 +49,7 @@ function Solid({ fn, hovered }: { fn: Fn; hovered: boolean }) {
   // wired up when our morph-bearing geometry is attached. Re-sync them here.
   useLayoutEffect(() => {
     mesh.current.updateMorphTargets();
+    dots.current.updateMorphTargets();
   }, [geometry]);
 
   useFrame((_, dtRaw) => {
@@ -39,6 +59,9 @@ function Solid({ fn, hovered }: { fn: Fn; hovered: boolean }) {
 
     if (mesh.current.morphTargetInfluences) {
       mesh.current.morphTargetInfluences[0] = morph.current;
+    }
+    if (dots.current.morphTargetInfluences) {
+      dots.current.morphTargetInfluences[0] = morph.current;
     }
     group.current.rotation.y += dt * (0.16 + morph.current * 0.4);
 
@@ -87,6 +110,20 @@ function Solid({ fn, hovered }: { fn: Fn; hovered: boolean }) {
           side={THREE.DoubleSide}
         />
       </mesh>
+
+      <points ref={dots} geometry={geometry}>
+        <pointsMaterial
+          map={DOT_TEXTURE}
+          color={hue}
+          size={0.055}
+          sizeAttenuation
+          transparent
+          opacity={0.9}
+          depthWrite={false}
+          blending={THREE.AdditiveBlending}
+          toneMapped={false}
+        />
+      </points>
 
       <Trail width={1.2} length={5} decay={1.4} color={hue} attenuation={(t) => t * t}>
         <mesh ref={particle}>
