@@ -210,7 +210,7 @@ function Solid({
   });
 
   return (
-    <group ref={group} rotation={[0.32, 0, 0]}>
+    <group ref={group} rotation={[0.32, 0, -0.16]}>
       {/* diffuse heat bloom behind the solid — dense regions read as a halo */}
       <sprite position={[0, 0, -0.6]} scale={[3.2, 3.2, 3.2]}>
         <spriteMaterial
