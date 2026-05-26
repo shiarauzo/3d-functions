@@ -5,6 +5,7 @@ import {
   MeshTransmissionMaterial,
   Trail,
 } from "@react-three/drei";
+import { Bloom, EffectComposer, Vignette } from "@react-three/postprocessing";
 import { useLayoutEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 import katex from "katex";
@@ -132,6 +133,16 @@ export function FunctionCell({
           <Lightformer intensity={0.7} position={[-3, -1, 2]} scale={[4, 4, 1]} color="#ffffff" />
           <Lightformer intensity={0.6} position={[3, 1, -2]} scale={[4, 4, 1]} color={fn.hue} />
         </Environment>
+        <EffectComposer multisampling={0}>
+          <Bloom
+            intensity={1.15}
+            luminanceThreshold={0.18}
+            luminanceSmoothing={0.35}
+            mipmapBlur
+            radius={0.7}
+          />
+          <Vignette eskil={false} offset={0.25} darkness={0.85} />
+        </EffectComposer>
       </Canvas>
       <div className="caption" dangerouslySetInnerHTML={{ __html: html }} />
     </div>
