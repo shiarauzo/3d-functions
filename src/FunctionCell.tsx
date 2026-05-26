@@ -6,7 +6,7 @@ import {
   Trail,
 } from "@react-three/drei";
 import { Bloom, EffectComposer, Vignette } from "@react-three/postprocessing";
-import { useLayoutEffect, useMemo, useRef } from "react";
+import { type CSSProperties, useLayoutEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 import katex from "katex";
 import type { Fn } from "./functions";
@@ -161,11 +161,13 @@ function Solid({ fn, hovered }: { fn: Fn; hovered: boolean }) {
 
 export function FunctionCell({
   fn,
+  index,
   hovered,
   dimmed,
   onHover,
 }: {
   fn: Fn;
+  index: number;
   hovered: boolean;
   dimmed: boolean;
   onHover: (id: string | null) => void;
@@ -174,13 +176,22 @@ export function FunctionCell({
     () => katex.renderToString(fn.latex, { throwOnError: false }),
     [fn.latex],
   );
+  const idx = String(index + 1).padStart(2, "0");
 
   return (
     <div
       className={`cell${hovered ? " is-hovered" : ""}${dimmed ? " is-dimmed" : ""}`}
+      style={{ "--hue": fn.hue } as CSSProperties}
       onPointerEnter={() => onHover(fn.id)}
       onPointerLeave={() => onHover(null)}
     >
+      <div className="cell-title">
+        <span className="cell-title__name">{fn.label}</span>
+        <span className="cell-title__desc">
+          DENSITY FIELD · REVOLUTION
+        </span>
+      </div>
+      <span className="cell-index">F{idx}</span>
       <Canvas
         dpr={[1, 2]}
         gl={{ alpha: true, antialias: true }}

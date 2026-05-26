@@ -13,10 +13,11 @@ export default function App() {
       </header>
 
       <div className="grid">
-        {FUNCTIONS.map((fn) => (
+        {FUNCTIONS.map((fn, i) => (
           <FunctionCell
             key={fn.id}
             fn={fn}
+            index={i}
             hovered={hovered === fn.id}
             dimmed={hovered !== null && hovered !== fn.id}
             onHover={setHovered}
