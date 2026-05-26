@@ -69,7 +69,7 @@ body {
 }
 
 .masthead__title h1 {
-  font-size: 24px;
+  font-size: clamp(16px, 4.5vw, 24px);
   font-weight: 600;
   letter-spacing: 0.22em;
   margin: 0 0 8px;
@@ -384,5 +384,35 @@ body {
 @media (max-width: 680px) {
   .grid {
     grid-template-columns: repeat(2, 1fr);
+  }
+  /* declutter the instrument chrome on small panels */
+  .cell-scale,
+  .cell-north {
+    display: none;
+  }
+  .cell-legend {
+    width: 76px;
+  }
+}
+
+@media (max-width: 440px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+  .masthead__row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .masthead__meta {
+    align-items: flex-start;
+    text-align: left;
+  }
+}
+
+/* on touch devices there is no hover — make the tap-to-pin affordance clear */
+@media (hover: none) {
+  .cell {
+    cursor: pointer;
   }
 }
