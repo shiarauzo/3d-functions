@@ -58,6 +58,27 @@ function Solid({
   const phase = useRef(Math.random());
   const tmp = useMemo(() => new THREE.Vector3(), []);
 
+  // sparse "quantity" dots (the reference's yellow proportional symbols):
+  // a coarse sampling of the revolution surface, baked once.
+  const qDots = useMemo(() => {
+    const NU = 14;
+    const NV = 9;
+    const pos = new Float32Array(NU * NV * 3);
+    const v = new THREE.Vector3();
+    let p = 0;
+    for (let i = 0; i < NU; i++) {
+      for (let j = 0; j < NV; j++) {
+        surfacePoint(fn, transform, (i + 0.5) / NU, (j + 0.5) / NV, 0, v);
+        pos[p++] = v.x;
+        pos[p++] = v.y;
+        pos[p++] = v.z;
+      }
+    }
+    const g = new THREE.BufferGeometry();
+    g.setAttribute("position", new THREE.BufferAttribute(pos, 3));
+    return g;
+  }, [fn, transform]);
+
   // R3F builds the Mesh with a placeholder geometry, so morph influences aren't
   // wired up when our morph-bearing geometry is attached. Re-sync them here.
   useLayoutEffect(() => {
@@ -153,6 +174,21 @@ function Solid({
           sizeAttenuation
           transparent
           opacity={0.9}
+          depthWrite={false}
+          blending={THREE.AdditiveBlending}
+          toneMapped={false}
+        />
+      </points>
+
+      {/* sparse signal-yellow "quantity" dots overlaid on the field */}
+      <points geometry={qDots}>
+        <pointsMaterial
+          map={DOT_TEXTURE}
+          color="#F8E71C"
+          size={0.11}
+          sizeAttenuation
+          transparent
+          opacity={0.85}
           depthWrite={false}
           blending={THREE.AdditiveBlending}
           toneMapped={false}
