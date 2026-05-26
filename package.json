@@ -1,0 +1,30 @@
+{
+  "name": "functions-art",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Sólidos de revolución/extrusión de funciones, en vidrio iridiscente. Grid 3×3.",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@react-three/drei": "^9.114.0",
+    "@react-three/fiber": "^8.17.10",
+    "katex": "^0.16.11",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "three": "^0.169.0"
+  },
+  "devDependencies": {
+    "@types/katex": "^0.16.7",
+    "@types/react": "^18.3.11",
+    "@types/react-dom": "^18.3.0",
+    "@types/three": "^0.169.0",
+    "@vitejs/plugin-react": "^4.3.2",
+    "puppeteer": "^25.0.4",
+    "typescript": "^5.4.5",
+    "vite": "^5.4.8"
+  }
+}
