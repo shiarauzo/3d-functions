@@ -5,7 +5,13 @@ import {
   MeshTransmissionMaterial,
   Trail,
 } from "@react-three/drei";
-import { Bloom, EffectComposer, Vignette } from "@react-three/postprocessing";
+import {
+  Bloom,
+  BrightnessContrast,
+  EffectComposer,
+  HueSaturation,
+  Vignette,
+} from "@react-three/postprocessing";
 import {
   type CSSProperties,
   type MutableRefObject,
@@ -228,8 +234,13 @@ export function FunctionCell({
       </div>
       <span className="cell-index">F{idx}</span>
       <Canvas
-        dpr={[1, 2]}
-        gl={{ alpha: true, antialias: true }}
+        dpr={[1, 1.75]}
+        gl={{
+          alpha: true,
+          antialias: true,
+          toneMapping: THREE.ACESFilmicToneMapping,
+          toneMappingExposure: 1.15,
+        }}
         camera={{ position: [0, 0, 4.2], fov: 30 }}
       >
         <ambientLight intensity={0.4} />
@@ -249,7 +260,9 @@ export function FunctionCell({
             mipmapBlur
             radius={0.7}
           />
-          <Vignette eskil={false} offset={0.25} darkness={0.85} />
+          <HueSaturation saturation={0.14} />
+          <BrightnessContrast brightness={0.0} contrast={0.1} />
+          <Vignette eskil={false} offset={0.22} darkness={0.9} />
         </EffectComposer>
       </Canvas>
       <div className="cell-legend">
