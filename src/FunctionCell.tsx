@@ -306,14 +306,18 @@ export function FunctionCell({
   fn,
   index,
   hovered,
+  pinned,
   dimmed,
   onHover,
+  onSelect,
 }: {
   fn: Fn;
   index: number;
   hovered: boolean;
+  pinned: boolean;
   dimmed: boolean;
   onHover: (id: string | null) => void;
+  onSelect: (id: string) => void;
 }) {
   const html = useMemo(
     () => katex.renderToString(fn.latex, { throwOnError: false }),
@@ -335,10 +339,21 @@ export function FunctionCell({
 
   return (
     <div
-      className={`cell${hovered ? " is-hovered" : ""}${dimmed ? " is-dimmed" : ""}`}
+      className={`cell${hovered ? " is-hovered" : ""}${pinned ? " is-pinned" : ""}${dimmed ? " is-dimmed" : ""}`}
       style={{ "--hue": fn.hue } as CSSProperties}
+      tabIndex={0}
+      role="button"
+      aria-pressed={pinned}
+      aria-label={`${fn.label} — click to pin`}
       onPointerEnter={() => onHover(fn.id)}
       onPointerLeave={() => onHover(null)}
+      onClick={() => onSelect(fn.id)}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onSelect(fn.id);
+        }
+      }}
     >
       <div className="cell-title">
         <span className="cell-title__name">{fn.label}</span>

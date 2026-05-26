@@ -1,9 +1,46 @@
-import { type CSSProperties, useState } from "react";
+import { type CSSProperties, useEffect, useState } from "react";
 import { FUNCTIONS } from "./functions";
 import { FunctionCell } from "./FunctionCell";
 
+const COLS = 4;
+
 export default function App() {
   const [hovered, setHovered] = useState<string | null>(null);
+  const [pinned, setPinned] = useState<string | null>(null);
+
+  // a pinned field stays focused without hover; hover still wins while active
+  const active = hovered ?? pinned;
+
+  const togglePin = (id: string) =>
+    setPinned((p) => (p === id ? null : id));
+
+  // arrow-key navigation over the pinned selection; Escape clears
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setPinned(null);
+        return;
+      }
+      const delta =
+        e.key === "ArrowRight" ? 1
+        : e.key === "ArrowLeft" ? -1
+        : e.key === "ArrowDown" ? COLS
+        : e.key === "ArrowUp" ? -COLS
+        : 0;
+      if (!delta) return;
+      e.preventDefault();
+      setPinned((p) => {
+        const cur = p ? FUNCTIONS.findIndex((f) => f.id === p) : -1;
+        const next = Math.min(
+          FUNCTIONS.length - 1,
+          Math.max(0, (cur < 0 ? 0 : cur) + delta),
+        );
+        return FUNCTIONS[next].id;
+      });
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
 
   return (
     <main className="app">
@@ -16,7 +53,7 @@ export default function App() {
           </div>
           <div className="masthead__meta">
             <span>{String(FUNCTIONS.length).padStart(2, "0")} FIELDS</span>
-            <span>REVOLUTION → EXTRUSION ON HOVER</span>
+            <span>HOVER · CLICK TO PIN · ARROWS</span>
           </div>
         </div>
       </header>
@@ -27,9 +64,11 @@ export default function App() {
             key={fn.id}
             fn={fn}
             index={i}
-            hovered={hovered === fn.id}
-            dimmed={hovered !== null && hovered !== fn.id}
+            hovered={active === fn.id}
+            pinned={pinned === fn.id}
+            dimmed={active !== null && active !== fn.id}
             onHover={setHovered}
+            onSelect={togglePin}
           />
         ))}
       </div>
@@ -39,10 +78,11 @@ export default function App() {
           <button
             key={fn.id}
             type="button"
-            className={`colorkey__item${hovered === fn.id ? " is-active" : ""}`}
+            className={`colorkey__item${active === fn.id ? " is-active" : ""}`}
             style={{ "--hue": fn.hue } as CSSProperties}
             onPointerEnter={() => setHovered(fn.id)}
             onPointerLeave={() => setHovered(null)}
+            onClick={() => togglePin(fn.id)}
           >
             <span className="colorkey__swatch" />
             {fn.label}
