@@ -1,8 +1,8 @@
 import * as THREE from "three";
 import type { Fn } from "./functions";
 
-const SEG_U = 140; // samples along the x-axis
-const SEG_V = 64; // samples around the revolution / across the extrusion
+const SEG_U = 104; // samples along the x-axis
+const SEG_V = 48; // samples around the revolution / across the extrusion
 const EXTRUDE_DEPTH = 1.4; // half-width of the extruded ribbon along z
 
 /**

@@ -388,7 +388,7 @@ export function FunctionCell({
       </span>
 
       <Canvas
-        dpr={[1, 1.75]}
+        dpr={[1, 1.5]}
         gl={{
           alpha: true,
           antialias: true,
@@ -402,7 +402,7 @@ export function FunctionCell({
         <ambientLight intensity={0.4} />
         <directionalLight position={[3, 4, 5]} intensity={1.1} />
         <Solid fn={fn} hovered={hovered} bloomRef={bloomRef} />
-        <Environment resolution={64} frames={1}>
+        <Environment resolution={32} frames={1}>
           <Lightformer intensity={1.4} position={[0, 2, 3]} scale={[6, 6, 1]} color={fn.hue} />
           <Lightformer intensity={0.7} position={[-3, -1, 2]} scale={[4, 4, 1]} color="#ffffff" />
           <Lightformer intensity={0.6} position={[3, 1, -2]} scale={[4, 4, 1]} color={fn.hue} />
