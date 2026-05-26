@@ -125,10 +125,34 @@ function Solid({ fn, hovered }: { fn: Fn; hovered: boolean }) {
         />
       </points>
 
-      <Trail width={1.2} length={5} decay={1.4} color={hue} attenuation={(t) => t * t}>
+      <Trail width={2.2} length={6} decay={1.5} color={hue} attenuation={(t) => t * t}>
         <mesh ref={particle}>
-          <sphereGeometry args={[0.04, 16, 16]} />
+          {/* white-hot core that drives the bloom */}
+          <sphereGeometry args={[0.03, 16, 16]} />
           <meshBasicMaterial color="#ffffff" toneMapped={false} />
+          {/* tight hue halo */}
+          <sprite scale={[0.28, 0.28, 0.28]}>
+            <spriteMaterial
+              map={DOT_TEXTURE}
+              color={hue}
+              transparent
+              depthWrite={false}
+              blending={THREE.AdditiveBlending}
+              toneMapped={false}
+            />
+          </sprite>
+          {/* wide soft glow */}
+          <sprite scale={[0.7, 0.7, 0.7]}>
+            <spriteMaterial
+              map={DOT_TEXTURE}
+              color={hue}
+              transparent
+              opacity={0.45}
+              depthWrite={false}
+              blending={THREE.AdditiveBlending}
+              toneMapped={false}
+            />
+          </sprite>
         </mesh>
       </Trail>
     </group>
