@@ -140,13 +140,69 @@ body {
   pointer-events: none;
 }
 
+/* legend block, lower-left like the reference's instrument legend */
+.cell-legend {
+  position: absolute;
+  left: 18px;
+  bottom: 16px;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 96px;
+  pointer-events: none;
+}
+
+.cell-legend__label {
+  font-size: 7px;
+  letter-spacing: 0.14em;
+  color: #7c8294;
+  text-transform: uppercase;
+}
+
+.cell-legend__bar {
+  height: 5px;
+  border-radius: 2px;
+  background: linear-gradient(
+    90deg,
+    #000000 0%,
+    var(--hue, #888) 55%,
+    #ffffff 100%
+  );
+  box-shadow: 0 0 6px color-mix(in srgb, var(--hue, #888) 60%, transparent);
+}
+
+.cell-legend__scale {
+  display: flex;
+  justify-content: space-between;
+  font-size: 7px;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.06em;
+  color: #9aa0b2;
+}
+
+.cell-legend__dots {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 1px;
+}
+
+.cell-legend__dots i {
+  display: inline-block;
+  border-radius: 50%;
+  background: var(--hue, #888);
+  box-shadow: 0 0 5px var(--hue, #888);
+}
+
 .caption {
   position: absolute;
   left: 0;
   right: 0;
   bottom: 14px;
   z-index: 3;
-  text-align: center;
+  text-align: right;
+  padding-right: 18px;
   font-size: 15px;
   color: #dbe2f2;
   pointer-events: none;
