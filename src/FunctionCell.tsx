@@ -19,6 +19,45 @@ import katex from "katex";
 import type { Fn } from "./functions";
 import { buildSolid, type FitTransform, surfacePoint } from "./geometry";
 
+/** Coordinate frame (x red · y green · z blue) the solid sits on. */
+function Axes() {
+  const geo = useMemo(() => {
+    const L = 1.35;
+    const pos = new Float32Array([
+      -L, 0, 0, L, 0, 0, // x
+      0, -L, 0, 0, L, 0, // y
+      0, 0, -L, 0, 0, L, // z
+    ]);
+    const c = new Float32Array([
+      0.86, 0.34, 0.34, 0.86, 0.34, 0.34,
+      0.46, 0.78, 0.46, 0.46, 0.78, 0.46,
+      0.44, 0.6, 0.92, 0.44, 0.6, 0.92,
+    ]);
+    const g = new THREE.BufferGeometry();
+    g.setAttribute("position", new THREE.BufferAttribute(pos, 3));
+    g.setAttribute("color", new THREE.BufferAttribute(c, 3));
+    return g;
+  }, []);
+  const tips: [THREE.Vector3, [number, number, number], string][] = [
+    [new THREE.Vector3(1.35, 0, 0), [0, 0, -Math.PI / 2], "#db5757"],
+    [new THREE.Vector3(0, 1.35, 0), [0, 0, 0], "#75c775"],
+    [new THREE.Vector3(0, 0, 1.35), [Math.PI / 2, 0, 0], "#709aeb"],
+  ];
+  return (
+    <group>
+      <lineSegments geometry={geo}>
+        <lineBasicMaterial vertexColors transparent opacity={0.5} depthWrite={false} toneMapped={false} />
+      </lineSegments>
+      {tips.map(([p, rot, col], i) => (
+        <mesh key={i} position={p} rotation={rot}>
+          <coneGeometry args={[0.028, 0.08, 10]} />
+          <meshBasicMaterial color={col} transparent opacity={0.6} toneMapped={false} />
+        </mesh>
+      ))}
+    </group>
+  );
+}
+
 /** A soft radial sprite so each surface point reads as a glowing dot. */
 function makeDotTexture() {
   const s = 64;
@@ -58,10 +97,7 @@ function Solid({
   const mesh = useRef<THREE.Mesh>(null!);
   const dots = useRef<THREE.Points>(null!);
   const mat = useRef<any>(null);
-  const sweep = useRef<THREE.Mesh>(null!);
-  const sweepMat = useRef<THREE.MeshBasicMaterial>(null!);
   const morph = useRef(0);
-  const phase = useRef(Math.random());
   const drift = useRef(Math.random() * 100);
   const camera = useThree((s) => s.camera);
 
@@ -137,15 +173,6 @@ function Solid({
     }
     if (!REDUCED) group.current.rotation.y += dt * (0.16 + morph.current * 0.4);
 
-    // sweep phase (the swarm particles advance themselves)
-    phase.current = (phase.current + dt * 0.16) % 1;
-    const u = phase.current;
-
-    // luminance sweep scanning along the revolution axis (x), brightest at center
-    const sx = -1.15 + 2.3 * u;
-    sweep.current.position.x = sx;
-    sweepMat.current.opacity = (1 - Math.abs(sx) / 1.15) * 0.6;
-
     // intensify the glass on hover
     if (mat.current) {
       mat.current.iridescence = THREE.MathUtils.lerp(
@@ -206,19 +233,8 @@ function Solid({
         />
       </mesh>
 
-      {/* travelling luminance sweep ring (axis = x) */}
-      <mesh ref={sweep} rotation={[0, Math.PI / 2, 0]}>
-        <torusGeometry args={[1.05, 0.012, 8, 48]} />
-        <meshBasicMaterial
-          ref={sweepMat}
-          color="#ffffff"
-          transparent
-          opacity={0}
-          depthWrite={false}
-          blending={THREE.AdditiveBlending}
-          toneMapped={false}
-        />
-      </mesh>
+      {/* coordinate axes — the solid sits on an x/y/z frame (rotates with it) */}
+      <Axes />
 
       <points ref={dots} geometry={geometry}>
         <pointsMaterial
