@@ -295,6 +295,19 @@ export function FunctionCell({
         </span>
       </div>
       <span className="cell-index">F{idx}</span>
+
+      {/* map chrome: north arrow + scale bar, instrument annotations */}
+      <span className="cell-north" aria-hidden>
+        <svg viewBox="0 0 12 16" width="9" height="12">
+          <path d="M6 0 L11 14 L6 10 L1 14 Z" fill="currentColor" />
+        </svg>
+        N
+      </span>
+      <span className="cell-scale" aria-hidden>
+        <span className="cell-scale__bar" />
+        <span className="cell-scale__txt">0 · 1 · 2 units</span>
+      </span>
+
       <Canvas
         dpr={[1, 1.75]}
         gl={{
