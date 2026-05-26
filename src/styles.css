@@ -58,10 +58,29 @@ body {
   position: relative;
   aspect-ratio: 1 / 1;
   border-radius: 14px;
-  background: #000000;
+  /* faint street-grid scaffold; the transparent canvas glows on top */
+  background-color: #000000;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.14) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.14) 1px, transparent 1px),
+    linear-gradient(rgba(255, 255, 255, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.06) 1px, transparent 1px);
+  background-size: 64px 64px, 64px 64px, 16px 16px, 16px 16px;
+  background-position: center;
   border: 1px solid rgba(255, 255, 255, 0.08);
   overflow: hidden;
   transition: opacity 0.35s ease, transform 0.35s ease, border-color 0.35s ease;
+}
+
+/* framed boundary: a fine inset rule like a map margin */
+.cell::after {
+  content: "";
+  position: absolute;
+  inset: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 8px;
+  pointer-events: none;
+  z-index: 2;
 }
 
 .cell canvas {
